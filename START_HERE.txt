@@ -1,0 +1,17 @@
+VEYLTHARYN — SQLITE EDITION
+
+Alur akun:
+Register -> Login -> Dashboard
+Register berhasil otomatis mengarah ke Login.
+Di Login akan muncul: "Akun berhasil dibuat. Masukan Email & Sandi yang telah Anda buat."
+Email dari Register otomatis diisi ke kolom Login.
+
+INSTALASI TERMUX
+1. cd ~/storage/downloads/Veyltharyn
+2. bash setup_sqlite.sh
+3. php tools/create_owner.php
+4. php -S 0.0.0.0:8080
+5. Buka http://127.0.0.1:8080/register.html
+
+Catatan: database/database file SQLite tersimpan lokal di database/veyltharyn.sqlite.
+Jangan menghapus file tersebut jika ingin data tetap tersimpan.

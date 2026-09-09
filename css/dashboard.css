@@ -1,0 +1,7 @@
+
+/* Hell palette override */
+:root{--hell-red:#b3002d;--hell-red2:#ff1744;--hell-black:#050308;--hell-purple:#5b1b8f;--hell-blue:#071a3d}
+body{background-color:#050308!important;color:#eee!important}
+.card,.panel,.auth-card,.dashboard-card{background:rgba(8,7,18,.82)!important;border-color:rgba(179,0,45,.38)!important;box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 22px rgba(91,27,143,.12)!important}
+button,.btn,.primary{background:linear-gradient(135deg,#8f0025,#5b1b8f 58%,#102b5c)!important;border-color:#b3002d!important;color:#fff!important}
+input,select,textarea{background:#080913!important;color:#fff!important;border-color:rgba(91,27,143,.65)!important}

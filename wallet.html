@@ -1,0 +1,20 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VNCoins & Gacha — Veyltharyn</title><link rel="stylesheet" href="css/main.css"></head>
+<body><main style="max-width:850px;margin:35px auto;padding:20px">
+<a class="btn ghost" href="index.html">← Veyltharyn</a>
+<section class="panel" style="margin-top:18px;text-align:center"><div class="eyebrow">VEYLTHARYN REWARDS</div><h1>VNCoins & Gacha</h1>
+<h2 id="bal">0 VNCoins</h2><p id="date" class="muted"></p><button class="btn primary" onclick="claim()">🎁 Klaim Harian +1 VNCoin</button></section>
+<section class="card" id="gachaBox" style="margin-top:15px;text-align:center"><h2>🎰 Gacha Diskon</h2><p>Saldo: <b id="gBalance">0</b> VNCoins</p><p>Spin hari ini: <b id="gSpins">0/3</b></p>
+<p class="muted">Hadiah tertinggi: <b>95% OFF</b>. Setiap spin memakai 1 VNCoin.</p><div id="gResult">🎲 Siap bermain?</div><button id="gSpin" class="btn primary" onclick="spinGacha()">🎰 SPIN GACHA</button></section>
+<section class="card" style="margin-top:15px"><h2>🎟️ Voucher Saya</h2><div id="gVouchers">Memuat...</div></section>
+<section class="card" style="margin-top:15px"><h2>🧾 Pesanan Saya</h2><div id="myOrders">Memuat...</div></section>
+</main>
+<script src="js/marketplace.js"></script><script>
+async function load(){try{let d=await api("coins");bal.textContent=(d.balance||0)+" VNCoins";date.textContent=d.last_claim?"Terakhir klaim: "+d.last_claim:"Belum pernah klaim hari ini"}catch(e){date.textContent=e.message}}
+async function claim(){try{let d=await api("claim-coins");alert(d.ok?"VNCoins +1":d.message||d.error);load();loadGacha()}catch(e){alert(e.message)}}
+async function loadGacha(){try{let d=await api("gacha-status");gBalance.textContent=Number(d.balance||0);gSpins.textContent=Number(d.spins_today||0)+"/3";gSpin.disabled=Number(d.balance||0)<1||Number(d.spins_left||0)<1}catch(e){gResult.textContent=e.message}}
+async function spinGacha(){gSpin.disabled=true;gResult.textContent="🎲 Mengundi hadiah...";try{let d=await api("gacha-spin",{method:"POST",body:{}});if(!d.ok)throw Error(d.error||"Gacha gagal");gResult.innerHTML=`🎉 <b>DISKON ${d.discount_percent}%</b><br>🎟️ ${d.voucher_code}<br><small>Berlaku sampai ${d.expires_at}</small>`;load();loadGacha();loadVouchers()}catch(e){gResult.textContent="❌ "+e.message;loadGacha()}}
+async function loadVouchers(){try{let d=await api("my-vouchers"),v=d.vouchers||[];gVouchers.innerHTML=v.length?v.map(x=>`<div class="card" style="margin:8px 0"><b>${x.discount_percent}% OFF</b> • <code>${x.code}</code><br><small>${x.status} • sampai ${x.expires_at}</small></div>`).join(""):"<p class='muted'>Belum ada voucher.</p>"}catch(e){gVouchers.textContent=e.message}}
+async function loadOrders(){try{let d=await api("orders"),o=d.orders||[];myOrders.innerHTML=o.length?o.map(x=>`<div style="padding:12px 0;border-bottom:1px solid #ffffff12"><b>${x.order_id}</b> — ${esc(x.name)}<br>Status: ${esc(x.status)} • Total: ${x.final_price==null?"Rp "+Number(x.original_price||0).toLocaleString("id-ID"):"Rp "+Number(x.final_price).toLocaleString("id-ID")}</div>`).join(""):"<p class='muted'>Belum ada pesanan.</p>"}catch(e){myOrders.textContent=e.message}}
+function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
+load();loadGacha();loadVouchers();loadOrders();
+</script><script src="js/site.js"></script></body></html>

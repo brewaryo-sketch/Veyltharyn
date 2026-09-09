@@ -1,0 +1,9 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Notifications — Veyltharyn</title><link rel="stylesheet" href="css/main.css"></head>
+<body><main style="max-width:950px;margin:35px auto;padding:20px"><a class="btn ghost" href="dashboard.html">← Dashboard</a><div class="page-head" style="margin-top:20px"><div><div class="eyebrow">INBOX</div><h1>Notifications</h1><p class="muted">Pesanan, voucher, VNCoins, dan aktivitas akun.</p></div><button class="btn" onclick="readAll()">Tandai semua dibaca</button></div>
+<section class="panel" id="notificationList">Memuat...</section></main>
+<script src="js/marketplace.js"></script><script>
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+async function load(){try{const d=await api("notifications");const n=d.notifications||[];notificationList.innerHTML=n.length?n.map(x=>`<article style="padding:16px;border-bottom:1px solid #ffffff12;opacity:${x.is_read?0.55:1}"><b>${esc(x.title)}</b><p>${esc(x.body)}</p><small class="muted">${esc(x.created_at)}</small>${x.link?`<br><a class="btn" style="margin-top:8px" href="${esc(x.link)}">Buka</a>`:""}</article>`).join(""):"<p class='empty'>Tidak ada notifikasi.</p>"}catch(e){notificationList.innerHTML="<p>"+esc(e.message)+"</p>"}}
+async function readAll(){try{await api("notifications-read",{method:"POST",body:{}});load()}catch(e){alert(e.message)}}
+load();
+</script><script src="js/site.js"></script></body></html>

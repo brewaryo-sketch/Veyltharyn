@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Produk — Veyltharyn</title><link rel="stylesheet" href="css/main.css"></head>
+<body><main style="max-width:980px;margin:35px auto;padding:20px">
+<a class="btn ghost" href="marketplace.html">← Marketplace</a>
+<div id="p" class="panel" style="margin-top:18px">Memuat produk...</div>
+</main>
+<script src="js/marketplace.js"></script>
+<script>
+const id=new URLSearchParams(location.search).get("id");
+let product=null;
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const money=x=>"Rp "+Number(x||0).toLocaleString("id-ID");
+async function load(){
+  if(!id){p.innerHTML="<h2>Product ID tidak ada.</h2>";return}
+  try{
+    const d=await api("product",{qs:{id}});
+    if(d.error)throw Error(d.error); product=d.product;
+    p.innerHTML=`<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,420px);gap:25px;align-items:start">
+      <div>${product.photo?`<img src="${esc(product.photo)}" alt="" style="width:100%;max-height:420px;object-fit:cover;border-radius:14px;border:1px solid var(--line)">`:""}
+      <div style="margin-top:18px"><span class="badge">${esc(product.category)}</span><h1>${esc(product.name)}</h1>
+      <p class="muted">${esc(product.description)}</p><h2>${money(product.price)}</h2>
+      <p>Product ID: <b>${esc(product.product_id)}</b><br>Seller: <b>${esc(product.seller)}</b><br>Status: ${esc(product.status)} • ${product.seller_verified?"Verified seller":"Seller belum verified"}</p>
+      <button class="btn" onclick="chat()">Chat Seller</button> <button class="btn" onclick="reportProduct()">Laporkan</button></div></div>
+      <section class="card"><h2>Checkout</h2>
+      <label>Email<input id="email" type="email" required></label>
+      <label>WhatsApp<input id="wa" required></label>
+      <label>Alamat<textarea id="address" rows="4" required></textarea></label>
+      <label>Voucher Diskon<input id="voucher" placeholder="VNC-..."></label>
+      <button class="btn" onclick="checkVoucher()">Cek Voucher</button>
+      <div id="vInfo" class="muted" style="margin:10px 0">Tanpa voucher: ${money(product.price)}</div>
+      <button class="btn primary" style="width:100%;justify-content:center" onclick="order()">Pesan Sekarang</button>
+      </section></div>`;
+    loadMe();
+  }catch(e){p.innerHTML="<h2>Gagal memuat</h2><p>"+esc(e.message)+"</p>"}
+}
+async function loadMe(){try{const d=await api("me");if(d.user){email.value=d.user.email||""}}catch(e){}}
+async function checkVoucher(){
+  const code=voucher.value.trim(); if(!code){vInfo.textContent="Masukkan kode voucher.";return}
+  try{const d=await api("voucher-check",{qs:{code,product_id:id}});vInfo.innerHTML=`Diskon <b>${d.discount_percent}%</b> • Hemat ${money(d.discount_amount)} • Total <b>${money(d.final_price)}</b>`}
+  catch(e){vInfo.textContent=e.message}
+}
+async function order(){
+  const payload={product_id:id,email:email.value.trim(),whatsapp:wa.value.trim(),address:address.value.trim(),voucher_code:voucher.value.trim()};
+  if(!payload.email||!payload.whatsapp||!payload.address){alert("Email, WhatsApp, dan alamat wajib diisi.");return}
+  try{
+    const d=await api("order",{method:"POST",body:payload});
+    if(!d.ok)throw Error(d.error||"Order gagal");
+    alert(`Order berhasil!\\nID: ${d.order_id}\\nTotal: ${money(d.final_price)}${d.bonus_vncoins?`\\nBonus: +${d.bonus_vncoins} VNCoins`:""}`);
+    location.href="wallet.html";
+  }catch(e){alert(e.message)}
+}
+async function chat(){try{const d=await api("chat-create",{method:"POST",body:{type:"seller",product_id:id}});if(!d.chat_id)throw Error(d.error||"Chat gagal");location.href="chat.html?chat_id="+d.chat_id}catch(e){alert(e.message)}}
+async function reportProduct(){const reason=prompt("Alasan laporan:");if(!reason)return;const details=prompt("Detail laporan:")||"";try{const d=await api("report",{method:"POST",body:{product_id:id,reason,details}});alert(d.ok?"Laporan terkirim":d.error)}catch(e){alert(e.message)}}
+load();
+</script><script src="js/site.js"></script></body></html>

@@ -1,0 +1,15 @@
+VEY LTHARYN PUBLIC DEPLOYMENT
+
+Runtime: PHP + SQLite
+Database: database/veyltharyn.sqlite
+Required PHP extension: pdo_sqlite
+Web server: Apache (recommended) / equivalent
+HTTPS: REQUIRED for production
+
+SSH setup:
+  bash setup_hosting.sh
+  php tools/create_owner.php
+
+Do not deploy to GitHub Pages.
+Do not expose tools/create_owner.php through the browser.
+Do not publish database/veyltharyn.sqlite.
